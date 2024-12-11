@@ -7,7 +7,6 @@ router.get('/getAllUser', userController.getAllUsers); // Get all users
 router.get('/:id', userController.getUserById); // Get a user by ID  
 router.put('/:id', userController.updateUser); // Update a user by ID  
 router.delete('/:id', userController.deleteUser); // Delete a user by ID  
-router.post('/:email', userController.loginUser);
-router.post('/:authenticated', userController.authenticatedUsers)
-router.post('/:email', userController.moderators)
+router.post('/:id', userController.loginUser);
+router.post('/:id', userController.authenticatedUsers)
 module.exports = router;

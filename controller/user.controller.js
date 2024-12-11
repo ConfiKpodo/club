@@ -48,7 +48,7 @@ exports.getUserById = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json(user);
-  } catch (error) {
+      } catch (error) {
     res
       .status(500)
       .json({ message: "Error retrieving user", error: error.message });
@@ -57,18 +57,20 @@ exports.getUserById = async (req, res) => {
 
 exports.authenticatedUsers = ensureAuthenticated, async (req, res) => {
   try {
-    const users = await User.find({email:users.email});
+    
+    const users = await User.find({id: req.users._id});
     return res.status(200).json({
       email: users.email,
       username: users.username,
-      role:users.role
+      role:users.role,
+      id:users._id,
     });
   } catch (error) {
     return res.status(500).json({ message:error.message });
   }
 }; 
 
-function ensureAuthenticated(req, res, next) {
+function ensureAuthenticated(req, res, next ) {
   const accessToken = req.headers.authorization;
   if (!accessToken) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -110,6 +112,7 @@ exports.loginUser = async (req, res) => {
       username: user.username,
       email: user.email,
       role: user.role,
+      id: user._id,
       accessToken: accessToken,
     });
   } catch (error) {
@@ -145,33 +148,20 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-//fetch base on moderator role
-exports.moderators = ensureModerators, async  (req, res)=> {
-  const {roles} = req.params;
-  try {
-    const moderators = await User.find({ roles: "moderator"});
-    res.status(200).json(moderators);
-  } catch (error) {
-    res
-     .status(500)
-     .json({ message: "Error retrieving moderators", error: error.message });
-  }
-};
-function ensureModerators (req,res, next){
-  const accessToken = req.headers.authorization;
-  if (!accessToken) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  try {
-    const user = jwt.verify(accessToken, config.accessTokenSecret);
-    if(user.role!=='moderator'){
-      return res.status(403).json({ message: "Unauthorized to access moderator functionality" });
-    }
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+exports.adminOrModerator = async (req, res) => {
+const {email} = req.params;
+try {
+  const user = await User.findOne({email:User.email})
+if (!email) {
+  return res.status(404).json({ message: "Invalid email or password" });
 }
+
+} catch (error) {
+
+}
+}
+
+
 
 // Delete a user by ID
 exports.deleteUser = async (req, res) => {
